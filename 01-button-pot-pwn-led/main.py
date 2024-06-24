@@ -6,15 +6,37 @@ led = machine.PWM(machine.Pin(16))
 led.freq(500)
 pot = machine.ADC(26)
 
+class Slot:
+  def __init__(self, initial_value):
+    self.value = initial_value
+
+PRESS_DEBOUNCE_MS = 20
+
+def register_irq_falling(pin, time_slot, handler):
+  def augmented_handler(passed_pin):
+    current_ticks = utime.ticks_ms()
+    #print(f"click at {current_ticks}")
+    diff = utime.ticks_diff(current_ticks, time_slot.value)
+    if (diff < PRESS_DEBOUNCE_MS):
+      pass
+      #print(f"Debouncing press after {diff}ms")
+    else:
+      #print(f"Allowing press after {diff}ms")
+      time_slot.value = current_ticks
+      handler(passed_pin)
+
+  pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=augmented_handler)
+
+
+
 isButtonDown = False
-
-# TODO: Needs debouncing!
-def button_irq_handler(pin):
+button_pressed_time = Slot(0)
+def button_pressed(pin):
   global isButtonDown
-  print("click", pin)
   isButtonDown = not isButtonDown
+register_irq_falling(button, button_pressed_time, button_pressed)
 
-button.irq(trigger=machine.Pin.IRQ_FALLING, handler=button_irq_handler)
+
 
 while True:
   # TODO: Needs calibrating!
