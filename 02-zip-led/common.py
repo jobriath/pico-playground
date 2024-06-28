@@ -16,10 +16,10 @@ class FlagButton:
 
     def handler(pin):
       if pin.value():  # On press
-        print(f"pressed\n")
         if self.pressed_ticks is not None:
           return
 
+        print(f"pressed\n")
         self.pressed_ticks = utime.ticks_ms()
         self.has_been_queried = False
 
