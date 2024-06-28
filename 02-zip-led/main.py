@@ -31,19 +31,27 @@ r = 0
 g = 0
 b = 0
 
+def components(bits):
+  r = (bits >> 8) & 0xff
+  g = (bits >> 16) & 0xff
+  b = bits & 0xff
+  return (r, g, b)
+
 while True:
-  if button_r.get_once():
-    r = 0 if r >= 255 else r + 32
+  r = 255 if button_r.get() else 0
+  g = 255 if button_g.get() else 0
+  b = 255 if button_b.get() else 0
 
-  if button_g.get_once():
-    g = 0 if g >= 255 else g + 32
+  for i in reversed(range(1, num_leds)):
+    (lr, lg, lb) = components(leds[i - 1])
+    (fr, fg, fb) = components(leds[i])
+    nr = (fr >> 1) + (lr >> 1)  # How much floating point can we handle here?
+    ng = (fg >> 1) + (lg >> 1)  # How much floating point can we handle here?
+    nb = (fb >> 1) + (lb >> 1)  # How much floating point can we handle here?
+    leds[i] = (ng << 16) + (nr << 8) + nb
 
-  if button_b.get_once():
-    b = 0 if b >= 255 else b + 32
+  leds[0] = (g << 16) + (r << 8) + b
 
-  for i in range(num_leds):
-    leds[i] = (g << 16) + (r << 8) + b
-  
   zip_stick.put(leds, 8)
 
-  time.sleep_ms(30)
+  time.sleep_ms(200)

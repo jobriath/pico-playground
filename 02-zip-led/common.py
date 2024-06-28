@@ -10,16 +10,16 @@ class Slot:
 
 class FlagButton:
   def __init__(self, pin_number):
+    self.button = machine.Pin(pin_number, machine.Pin.IN, machine.Pin.PULL_DOWN)
+
     self.pressed_ticks = None
     self.has_been_queried = False
-    self.button = machine.Pin(pin_number, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
     def handler(pin):
       if pin.value():  # On press
         if self.pressed_ticks is not None:
           return
 
-        print(f"pressed\n")
         self.pressed_ticks = utime.ticks_ms()
         self.has_been_queried = False
 
@@ -30,7 +30,6 @@ class FlagButton:
         current_ticks = utime.ticks_ms()
         diff = utime.ticks_diff(current_ticks, self.pressed_ticks)
         if (diff >= PRESS_DEBOUNCE_MS):
-          print(f"unpressed, {self.pressed_ticks}, {self.has_been_queried}\n")
           self.pressed_ticks = None
 
     self.button.irq(trigger=machine.Pin.IRQ_FALLING | machine.Pin.IRQ_RISING, handler=handler)
