@@ -37,21 +37,23 @@ def components(bits):
   b = bits & 0xff
   return (r, g, b)
 
+DELTA_MS = 30
+RETAIN = 0.9  # 0.5 * (1 / DELTA_MS)  # Half-life of a second
+LOSE = 1 - RETAIN
+
 while True:
   r = 255 if button_r.get() else 0
   g = 255 if button_g.get() else 0
   b = 255 if button_b.get() else 0
 
-  for i in reversed(range(1, num_leds)):
-    (lr, lg, lb) = components(leds[i - 1])
+  for i in reversed(range(num_leds)):
+    (lr, lg, lb) = components(leds[i - 1]) if i > 0 else (r, g, b)
     (fr, fg, fb) = components(leds[i])
-    nr = (fr >> 1) + (lr >> 1)  # How much floating point can we handle here?
-    ng = (fg >> 1) + (lg >> 1)  # How much floating point can we handle here?
-    nb = (fb >> 1) + (lb >> 1)  # How much floating point can we handle here?
+    nr = int(RETAIN * fr + LOSE * lr)
+    ng = int(RETAIN * fg + LOSE * lg)
+    nb = int(RETAIN * fb + LOSE * lb)
     leds[i] = (ng << 16) + (nr << 8) + nb
-
-  leds[0] = (g << 16) + (r << 8) + b
 
   zip_stick.put(leds, 8)
 
-  time.sleep_ms(200)
+  time.sleep_ms(DELTA_MS)
