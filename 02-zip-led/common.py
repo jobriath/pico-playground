@@ -1,3 +1,7 @@
+import machine
+import utime
+
+
 PRESS_DEBOUNCE_MS = 20
 
 class Slot:
@@ -6,7 +10,7 @@ class Slot:
 
 class FlagButton:
   def __init__(self, pin_number):
-    self.value = True
+    self.pressed = False
     self.last_ticks = utime.ticks_ms()
     self.button = machine.Pin(pin_number, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
@@ -21,8 +25,8 @@ class FlagButton:
     self.button.irq(trigger=machine.Pin.IRQ_FALLING, handler=handler)
 
   def get_and_clear(self):
-    result = this.value
-    this.value = False
+    result = self.pressed
+    self.pressed = False
     return result
 
 

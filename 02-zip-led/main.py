@@ -53,7 +53,7 @@ while True:
       b += 32
     time.sleep_ms(100)
 
-  print(f"{r}:{g}:{b}")
+  #print(f"{r}:{g}:{b}")
 
   for i in range(num_leds):
     leds[i] = (g << 16) + (r << 8) + b
