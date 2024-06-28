@@ -10,24 +10,37 @@ class Slot:
 
 class FlagButton:
   def __init__(self, pin_number):
-    self.pressed = False
-    self.last_ticks = utime.ticks_ms()
+    self.pressed_ticks = None
+    self.has_been_queried = False
     self.button = machine.Pin(pin_number, machine.Pin.IN, machine.Pin.PULL_DOWN)
 
-    def handler(pin):
+    def press_handler(pin):
+      if self.pressed_ticks is not None:
+        return
+
+      self.pressed_tickets = utime.ticks_ms()
+      self.has_been_queried = False
+
+    def unpress_handler(pin):
+      if self.pressed_ticks is None:
+        return
+
       current_ticks = utime.ticks_ms()
-      diff = utime.ticks_diff(current_ticks, self.last_ticks)
+      diff = utime.ticks_diff(current_ticks, self.pressed_ticks)
       if (diff >= PRESS_DEBOUNCE_MS):
-        self.last_ticks = current_ticks
-        self.pressed = True
+        self.pressed_ticks = None
 
-    # TODO: A long press might erroneously fire on release.
-    self.button.irq(trigger=machine.Pin.IRQ_FALLING, handler=handler)
+    self.button.irq(trigger=machine.Pin.IRQ_FALLING, handler=press_handler)
+    self.button.irq(trigger=machine.Pin.IRQ_RISING, handler=unpress_handler)
 
-  def get_and_clear(self):
-    result = self.pressed
-    self.pressed = False
-    return result
+  def get_once(self):
+    if self.pressed_ticks == None or self.has_been_queried:
+      return False
+    self.has_been_queried = True
+    return True
+
+  def get(self):
+    return self.pressed_ticks != None
 
 
 def register_irq_falling(pin, time_slot, handler):
