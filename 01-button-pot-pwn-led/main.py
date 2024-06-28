@@ -15,13 +15,8 @@ PRESS_DEBOUNCE_MS = 20
 def register_irq_falling(pin, time_slot, handler):
   def augmented_handler(passed_pin):
     current_ticks = utime.ticks_ms()
-    #print(f"click at {current_ticks}")
     diff = utime.ticks_diff(current_ticks, time_slot.value)
-    if (diff < PRESS_DEBOUNCE_MS):
-      pass
-      #print(f"Debouncing press after {diff}ms")
-    else:
-      #print(f"Allowing press after {diff}ms")
+    if (diff >= PRESS_DEBOUNCE_MS):
       time_slot.value = current_ticks
       handler(passed_pin)
 
