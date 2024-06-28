@@ -43,7 +43,7 @@ while True:
 
   for i in range(num_leds):
     leds[i] = (g << 16) + (r << 8) + b
-
+  
   zip_stick.put(leds, 8)
 
   time.sleep_ms(30)
