@@ -32,28 +32,14 @@ g = 0
 b = 0
 
 while True:
-  if button_r.get_and_clear():
-    if r >= 255:
-      r = 0
-    else:
-      r += 32
-    time.sleep_ms(100)
+  if button_r.get_once():
+    r = 0 if r >= 255 else r + 32
 
-  if button_g.get_and_clear():
-    if g >= 255:
-      g = 0
-    else:
-      g += 32
-    time.sleep_ms(100)
+  if button_g.get_once():
+    g = 0 if g >= 255 else g + 32
 
-  if button_b.get_and_clear():
-    if b >= 255:
-      b = 0
-    else:
-      b += 32
-    time.sleep_ms(100)
-
-  #print(f"{r}:{g}:{b}")
+  if button_b.get_once():
+    b = 0 if b >= 255 else b + 32
 
   for i in range(num_leds):
     leds[i] = (g << 16) + (r << 8) + b
